@@ -111,6 +111,7 @@ class HomePage extends StatelessWidget {
                   builder: (context) => PhotoDetailsPage(
                     key: UniqueKey(),
                     photo: photo,
+                    photos: photos,
                   ),
                 ),
               );
@@ -145,6 +146,7 @@ class HomePage extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         fontSize: 16.0,
                       ),
+                      textAlign: TextAlign.left,
                     ),
                   ),
                 ),
@@ -159,11 +161,14 @@ class HomePage extends StatelessWidget {
 
 class PhotoDetailsPage extends StatelessWidget {
   final ImageDetails photo;
+  final List<ImageDetails> photos;
 
-  const PhotoDetailsPage({Key? key, required this.photo}) : super(key: key);
+  const PhotoDetailsPage({Key? key, required this.photo, required this.photos}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final List<ImageDetails> suggestedPhotos = photos.where((element) => element != photo).toList().take(2).toList();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
@@ -177,7 +182,7 @@ class PhotoDetailsPage extends StatelessWidget {
           },
         ),
       ),
-      body: SingleChildScrollView( // Wrap Column with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -206,6 +211,71 @@ class PhotoDetailsPage extends StatelessWidget {
                     photo.details,
                     style: const TextStyle(
                       fontSize: 18.0,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0), // Add spacing
+                  const Text(
+                    'Suggestions', // Add suggestion title
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 150.0, // Adjust the height as needed
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: suggestedPhotos.length,
+                      itemBuilder: (context, index) {
+                        final suggestedPhoto = suggestedPhotos[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PhotoDetailsPage(
+                                  key: UniqueKey(),
+                                  photo: suggestedPhoto,
+                                  photos: photos,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 150.0, // Adjust width as needed
+                                margin: const EdgeInsets.symmetric(horizontal: 8.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: Colors.grey[300],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  child: Image.asset(
+                                    suggestedPhoto.imagePath,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                left: 8.0,
+                                bottom: 8.0,
+                                child: Text(
+                                  suggestedPhoto.title,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.0,
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
